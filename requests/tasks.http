@@ -2,6 +2,7 @@
 
 ###
 GET {{api}}
+Authorization: tokenX
 ###
 GET {{api}}/6
 ###
