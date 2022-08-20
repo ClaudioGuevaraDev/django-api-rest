@@ -1,34 +1,46 @@
-from urllib import request
 from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from django.utils.decorators import decorator_from_middleware
+from django.utils.decorators import decorator_from_middleware, sync_and_async_middleware
+from rest_framework.renderers import JSONRenderer
 
 from tasks.models import Task
 from tasks.serializers import TaskSerializer
 
-# def simple_middleware(get_response):
-#     def middleware(request):
-#         print("wenas")
-    
-#         return get_response(request)
-class SimpleMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-    
-    def __call__(self, request):
-        print("wenas")
-        return self.get_response(request)
+def simple_middleware(get_response):
+    def middleware(request):
+        response = get_response(request)
 
-simple_decorator = decorator_from_middleware(SimpleMiddleware)
+        if request.headers["Authorization"] != "token":
+            response =  Response({"message": "Unauthorizated"}, status=status.HTTP_401_UNAUTHORIZED)
+            response.accepted_renderer = JSONRenderer()
+            response.accepted_media_type = "application/json"
+            response.renderer_context = {}
+            response.render()
+            return response
+
+        return response
+    
+    return middleware
+
+# class SimpleMiddleware:
+#     def __init__(self, get_response):
+#         self.get_response = get_response
+    
+#     def __call__(self, request):
+#         if request.headers["Authorization"] != "token":
+#             return Response({"message": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#         response = self.get_response(request)
+
+#         return response
 
 @api_view(['GET', 'POST'])
-@simple_decorator
+@decorator_from_middleware(simple_middleware)
 def handler_tasks(request):
-    print(request.headers["Authorization"])
     if request.method == "GET":
         tasks = Task.objects.all()
         tasks_serializer = TaskSerializer(tasks, many=True)
