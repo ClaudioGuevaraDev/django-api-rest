@@ -3,12 +3,22 @@
 ###
 GET {{api}}
 ###
-GET {{api}}/2
+GET {{api}}/6
 ###
 POST {{api}}
 Content-Type: application/json
 
 {
-    "title": "Task three",
-    "description": "Description three"
+    "title": "Task",
+    "description": "Description"
+}
+###
+DELETE {{api}}/8
+###
+PUT {{api}}/6
+Content-Type: application/json
+
+{
+    "title": "TASK 6",
+    "description": "DESCRIPTION 6"
 }

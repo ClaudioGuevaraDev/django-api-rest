@@ -23,7 +23,7 @@ def handler_tasks(request):
         return JsonResponse(tasks_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+@api_view(["GET", "PUT", "DELETE"])
 @csrf_exempt
 def handler_tasks_with_pk(request, pk):
     task = None
@@ -36,3 +36,13 @@ def handler_tasks_with_pk(request, pk):
     if request.method == "GET":
         task_serializer = TaskSerializer(task)
         return JsonResponse({"task": task_serializer.data}, status=status.HTTP_200_OK)
+    elif request.method == "PUT":
+        task_parser = JSONParser().parse(request)
+        task_serializer = TaskSerializer(task, data=task_parser)
+        if task_serializer.is_valid():
+            task_serializer.save()
+            return JsonResponse({"task": task_serializer.data}, status=status.HTTP_200_OK)
+        return JsonResponse(task_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == "DELETE":
+        task.delete()
+        return JsonResponse(status=status.HTTP_204_NO_CONTENT)
