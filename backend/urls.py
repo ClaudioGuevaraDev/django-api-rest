@@ -3,5 +3,5 @@ from django.urls import path, include, re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path(r'^api/tasks', include("tasks.urls")),
+    re_path(r'^api/tasks/', include("tasks.urls")),
 ]

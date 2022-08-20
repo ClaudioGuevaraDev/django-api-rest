@@ -13,3 +13,13 @@ def get_tasks(request):
     tasks_serializer = TaskSerializer(tasks, many=True)
 
     return JsonResponse({"tasks": tasks_serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def get_task(request, pk):
+    try:
+        task = Task.objects.get(pk=pk)
+        task_serializer = TaskSerializer(task)
+        return JsonResponse({"task": task_serializer.data}, status=status.HTTP_200_OK)
+    except Task.DoesNotExist:
+        return JsonResponse({"message": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
